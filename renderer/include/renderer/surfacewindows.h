@@ -6,17 +6,17 @@
 #include <stdexcept>
 
 namespace renderer {
-	class SurfaceWindows final
-	{
-	public:
-		SurfaceWindows(AppInstance& inst, HINSTANCE hinstance, HWND hwnd);
-		~SurfaceWindows();
+    class SurfaceWindows final
+    {
+    public:
+        SurfaceWindows(AppInstance& inst, HINSTANCE hinstance, HWND hwnd);
+        ~SurfaceWindows();
 
-		VkSurfaceKHR& surface();
-	private:
-		AppInstance& appInstance;
-		VkSurfaceKHR wndSurface;
-	};
+        VkSurfaceKHR& surface();
+    private:
+        AppInstance& appInstance;
+        VkSurfaceKHR wndSurface;
+    };
 }
 
 #endif

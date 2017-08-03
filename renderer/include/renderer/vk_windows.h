@@ -8,6 +8,4 @@
 	#error Only Windows plaftorm supported at this time
 #endif
 
-
-
 #endif // !_RENDERER_WIN_SUPPORT_
