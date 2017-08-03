@@ -117,12 +117,12 @@ namespace renderer {
 
 		vkUpdateDescriptorSets(renderDevice.device(), 1, &wrt, 0, nullptr);
 		
-		std::ifstream vShaderStream("particle_fountain_vert.spv", std::ios::ate | std::ios::binary);
+		std::ifstream vShaderStream("vert.spv", std::ios::ate | std::ios::binary);
 		if (!vShaderStream.is_open()) {
 			throw std::runtime_error("Could not open vertex shader file");
 		}
 
-		std::ifstream fShaderStream("particle_fountain_frag.spv", std::ios::ate | std::ios::binary);
+		std::ifstream fShaderStream("frag.spv", std::ios::ate | std::ios::binary);
 		if (!fShaderStream.is_open()) {
 			throw std::runtime_error("Could not open fragment shader file");
 		}
