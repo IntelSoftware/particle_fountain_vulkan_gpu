@@ -1,7 +1,7 @@
 #include <renderer/scene.h>
 
 namespace renderer {
-    Scene::Scene(Device & device)
+    Scene::Scene(base::Device & device)
         : rDevice(device)
     {
         VkResult result; 
@@ -191,7 +191,7 @@ namespace renderer {
         vkQueuePresentKHR(rDevice.presentQueue(), &present);
     }
 
-    Device & Scene::rendererDevice() noexcept
+    base::Device & Scene::rendererDevice() noexcept
     {
         return rDevice;
     }

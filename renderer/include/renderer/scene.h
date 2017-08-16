@@ -2,7 +2,7 @@
 #define _RENDERER_SCENE_
 
 #include <vector>
-#include <renderer/device.h>
+#include <base/device.h>
 #include <renderer/scene_element.h>
 
 namespace renderer {
@@ -14,19 +14,19 @@ namespace renderer {
                 DEPTH = 0x1
         };
 
-        Scene(Device& device);
+        Scene(base::Device& device);
         ~Scene();
         void addToScene(SceneElement *element);
 
         void render();
 
-        Device& rendererDevice() noexcept;
+        base::Device& rendererDevice() noexcept;
         VkRenderPass renderPass() noexcept;
 
     private:
         std::vector<SceneElement*> objectsList;
 
-        Device& rDevice;
+        base::Device& rDevice;
 
         VkRenderPass rPass;
         std::vector<VkFramebuffer> framebuffers;

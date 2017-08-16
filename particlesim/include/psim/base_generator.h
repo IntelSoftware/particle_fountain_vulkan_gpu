@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <limits>
 #include <random>
-#include <psim/types.h>
-#include <psim/buffer.h>
+#include <base/types.h>
+#include <base/buffer.h>
 
 namespace psim {
     namespace generators {
@@ -26,16 +26,16 @@ namespace psim {
             BaseGenerator(const BaseGenerator& o) = default;
             BaseGenerator& operator=(const BaseGenerator& o) = default;
 
-            virtual void generate(Buffer& buffer, base::time dt, uint32_t limit = std::numeric_limits<uint32_t>::max()) = 0;
+            virtual void generate(base::Buffer& buffer, base::scalar::time dt, uint32_t limit = UINT32_MAX) = 0;
             virtual BaseGenerator* clone() const = 0;
 
-            void setWorldSize(const vec::vec3f& size);
+            void setWorldSize(const base::vec::vec3f& size);
 
         protected:
             struct {
                 ttlpair defTTL;
                 bool variableTTL;
-                std::uniform_real_distribution<base::time> distTTL;
+                std::uniform_real_distribution<base::scalar::time> distTTL;
 
                 floatpair defMass;
                 bool variableMass;
@@ -48,17 +48,17 @@ namespace psim {
                 floatpair defParticleSpawnRate;
                 float particleSpawnRate;
 
-                vec::vec3f worldSize;
+                base::vec::vec3f worldSize;
                 bool worldSizeSet;
             } baseProperties;;
 
             static std::ranlux24_base& randEngine();
 
-            base::time genTTL() const;
+            base::scalar::time genTTL() const;
             float genMass() const;
             float genSpeed() const;
 
-            void BaseGenerator::toNormalizedScale(particle & p);
+            void BaseGenerator::toNormalizedScale(base::particle & p);
         };
     }
 }

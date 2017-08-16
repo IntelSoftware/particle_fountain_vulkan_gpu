@@ -1,5 +1,5 @@
 #include <psim/point_generator.h>
-#include <psim/utils.h>
+#include <base/utils.h>
 
 #include <iostream>
 
@@ -15,13 +15,13 @@ namespace psim {
             return std::make_pair(phi, deviation);
         }
 
-        PointGenerator::PointGenerator(vec::vec3Coord pos, floatpair theta, floatpair phi, ttlpair ttl, floatpair mass, floatpair speed, floatpair rate)
+        PointGenerator::PointGenerator(base::vec::vec3f pos, floatpair theta, floatpair phi, ttlpair ttl, floatpair mass, floatpair speed, floatpair rate)
             : BaseGenerator(ttl, mass, speed, rate)
             , accumulatedParticleCount(0)
         {
             pointGenProperties.position = pos;
 
-            theta = std::make_pair(theta.first* utils::DEGTORAD, theta.second * utils::DEGTORAD);
+            theta = std::make_pair(theta.first * base::utils::DEGTORAD, theta.second * base::utils::DEGTORAD);
             pointGenProperties.defTheta = theta;
             if (theta.second > 0) {
                 pointGenProperties.distTheta = std::uniform_real_distribution<float>(theta.first - theta.second, theta.first + theta.second);
@@ -30,7 +30,7 @@ namespace psim {
                 pointGenProperties.variableTheta = false;
             }
 
-            phi = std::make_pair(phi.first*utils::DEGTORAD, phi.second*utils::DEGTORAD);
+            phi = std::make_pair(phi.first * base::utils::DEGTORAD, phi.second * base::utils::DEGTORAD);
             pointGenProperties.defPhi = phi;
             if (phi.second > 0) {
                 pointGenProperties.distPhi = std::uniform_real_distribution<float>(phi.first - phi.second, phi.first + phi.second);
@@ -57,7 +57,7 @@ namespace psim {
             return *this;
         }
 
-        void PointGenerator::generate(Buffer & buffer, base::time dt, uint32_t limit)
+        void PointGenerator::generate(base::Buffer & buffer, base::scalar::time dt, uint32_t limit)
         {
             accumulatedParticleCount += baseProperties.particleSpawnRate * dt;
 
@@ -73,13 +73,13 @@ namespace psim {
                         float phi = genPhi();
                         float theta = genTheta();
                         float speed = genSpeed();
-                        vec::vec3Coord velocity = speed * utils::fromSpherical(theta, phi);
+                        base::vec::vec3f velocity = speed * base::utils::fromSpherical(theta, phi);
 
-                        particle p{
+                        base::particle p{
                             pointGenProperties.position,
                             {1.0f, 1.0f, 1.0f},
-                            genTTL(),
                             velocity,
+                            genTTL(),
                             genMass()
                         };
                         toNormalizedScale(p);

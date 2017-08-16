@@ -3,31 +3,64 @@
 
 #include <chrono>
 #include <list>
-#include <psim/buffer.h>
+#include <base/buffer.h>
+#include <base/device.h>
 #include <psim/base_generator.h>
-#include <psim/base_interactor.h>
+#include <psim/interactor_defs.h>
 
 namespace psim {
     class Model final
     {
     public:
-        using size = vec::vec3f;
+        using size = base::vec::vec3f;
         using GeneratorList = std::list<generators::BaseGenerator*>;
-        using InteractorList = std::list<interactors::BaseInteractor*>;
 
-        Model(size wSize, const GeneratorList& genList, const InteractorList& iList, int numThreads = 1);
-        Model(const Model & m);
-        Model& operator = (const Model & m);
+        Model(base::Device& device, base::Buffer& buff, size wSize, const GeneratorList& genList, interactors::Setup i);
+        Model(const Model & m) = delete;
+        Model& operator = (const Model & m) = delete;
         ~Model();
-        void progress(std::chrono::microseconds dt, Buffer & buffer);
+        void progress(std::chrono::microseconds dt);
     private:
+
+        union PushConstantData
+        {
+            struct 
+            {
+                uint32_t particleCount;
+                float dt;
+            } itemized;
+            char data[sizeof(std::size_t) + sizeof(float)];
+        };
+
         size worldSize;
         GeneratorList generators;
-        InteractorList interactors;
+
+        VkDescriptorSetLayout descriptorSetLayout;
+        VkDescriptorPool descriptorPool;
+        VkDescriptorSet descriptorSet;
+        VkPipelineShaderStageCreateInfo compShaderStage;
+        VkPipelineLayout pipelineLayout;
+        VkPipeline pipeline;
+
+        VkCommandBuffer commandBuffer;
+        VkCommandBufferBeginInfo bufferBeginInfo;
+        VkFence fence;
+
+        VkSubmitInfo submitInfo;
+
+        base::Device& dev;
+        base::Buffer& buffer;
 		
-        particle processParticle(base::time dt, particle p);
-        void toWorldScale(particle & p);
-        void toNormalizedScale(particle & p);
+        void toWorldScale(base::particle & p);
+        void toNormalizedScale(base::particle & p);
+
+        VkBuffer worldSizeUBO;
+        VkDeviceMemory worldSizeUBODeviceMemory;
+
+        VkBuffer interactorsUBO;
+        VkDeviceMemory interactorsUBODeviceMemory;
+
+        VkResult allocateBuffers();
     };
 }
 

@@ -9,11 +9,12 @@ namespace renderer {
     class ParticlesElement : public SceneElement
     {
     public:
-        ParticlesElement(Device & device, VkRenderPass renderPass, std::size_t vbSize);
+        ParticlesElement(base::Device & device, VkRenderPass renderPass, std::size_t vbSize);
         virtual ~ParticlesElement();
 
         void setMVP(const glm::mat4& mvp);
-        void setVertexBufferData(std::size_t count, void* data, std::size_t memSize);
+        void setVertexBuffer(VkBuffer vb) noexcept; 
+        void setCurrentCount(std::size_t count) noexcept;
 
         void recordToCmdBuffer(VkCommandBuffer commandBuffer);
 
@@ -31,11 +32,9 @@ namespace renderer {
         VkPipelineShaderStageCreateInfo vertexShaderStage;
         VkPipelineShaderStageCreateInfo fragmentShaderStage;
 
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
-
         VkPipeline pipeline;
 
+        VkBuffer vertexBuffer;
         std::size_t particleCount;
 
         VkViewport viewport;

@@ -27,7 +27,7 @@ namespace psim {
         {
             baseProperties.defTTL = ttl;
             if (ttl.second > 0) {
-                baseProperties.distTTL = std::uniform_real_distribution<base::time>(ttl.first - ttl.second, ttl.first + ttl.second);
+                baseProperties.distTTL = std::uniform_real_distribution<base::scalar::time>(ttl.first - ttl.second, ttl.first + ttl.second);
                 baseProperties.variableTTL = true;
             } else {
                 baseProperties.variableTTL = false;
@@ -55,7 +55,7 @@ namespace psim {
             baseProperties.worldSizeSet = false;
         }
 
-        void BaseGenerator::setWorldSize(const vec::vec3f & size)
+        void BaseGenerator::setWorldSize(const base::vec::vec3f & size)
         {
             baseProperties.worldSize = size;
             baseProperties.worldSizeSet = false;
@@ -74,9 +74,9 @@ namespace psim {
                 return generator;
         }
 
-        base::time BaseGenerator::genTTL() const
+        base::scalar::time BaseGenerator::genTTL() const
         {
-            base::time ret;
+            base::scalar::time ret;
 
             if (baseProperties.variableTTL) {
                 ret = baseProperties.distTTL(BaseGenerator::randEngine());
@@ -113,11 +113,11 @@ namespace psim {
             return ret;
         }
 
-        void BaseGenerator::toNormalizedScale(particle & p)
+        void BaseGenerator::toNormalizedScale(base::particle & p)
         {
-            p.pos[axis::X] = p.pos[axis::X] / baseProperties.worldSize[axis::X];
-            p.pos[axis::Y] = p.pos[axis::Y] / baseProperties.worldSize[axis::Y];
-            p.pos[axis::Z] = p.pos[axis::Z] / baseProperties.worldSize[axis::Z];
+            p.pos[base::axis::X] = p.pos[base::axis::X] / baseProperties.worldSize[base::axis::X];
+            p.pos[base::axis::Y] = p.pos[base::axis::Y] / baseProperties.worldSize[base::axis::Y];
+            p.pos[base::axis::Z] = p.pos[base::axis::Z] / baseProperties.worldSize[base::axis::Z];
         }
     }
 }

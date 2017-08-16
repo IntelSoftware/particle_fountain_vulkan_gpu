@@ -1,18 +1,15 @@
 #include <cstdio>
 #include <iostream>
 
-#include <renderer/appinstance.h>
-#include <renderer/surfacewindows.h>
-#include <renderer/device.h>
+#include <base/appinstance.h>
+#include <base/surfacewindows.h>
+#include <base/device.h>
 #include <renderer/particles_element.h>
 #include <renderer/scene.h>
 
-#include <psim/buffer.h>
+#include <base/buffer.h>
 #include <psim/model.h>
 #include <psim/point_generator.h>
-#include <psim/const_force_interactor.h>
-#include <psim/point_gravity_interactor.h>
-#include <psim/planar_gravity_interactor.h>
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
@@ -26,9 +23,8 @@
 
 constexpr int SCR_WIDTH = 1280;
 constexpr int SCR_HEIGHT = 960;
-constexpr std::size_t MAX_PARTICLES = 200000;
+constexpr std::size_t MAX_PARTICLES = 1000000;
 constexpr float WORLD_SIZE = 500;
-constexpr int THREADS = 8;
 
 psim::Model::GeneratorList initGeneratorsList() 
 {
@@ -39,8 +35,8 @@ psim::Model::GeneratorList initGeneratorsList()
         psim::generators::PointGenerator::defPhi(-90, 5),
         psim::generators::PointGenerator::defTTL(600, 0),
         psim::generators::PointGenerator::defMass(5.0e+10f, 0),
-        psim::generators::PointGenerator::defSpeed(95, 10),
-        psim::generators::PointGenerator::defSpawningRate(20.0f, 0.1f)
+        psim::generators::PointGenerator::defSpeed(95, 1),
+        psim::generators::PointGenerator::defSpawningRate(200.0f, 0.1f)
     );
     genList.push_back(g);
     g = nullptr;
@@ -48,48 +44,21 @@ psim::Model::GeneratorList initGeneratorsList()
     return genList;
 }
 
-psim::Model::InteractorList initInteractorList()
+psim::interactors::Setup initInteractors()
 {
-    psim::interactors::BaseInteractor* i = nullptr;
-    psim::Model::InteractorList iList;
-    i = new psim::interactors::PlanarGravityInteractor(
-        { 0.0f, 300.0f, 0.0f },
-        { 0.0f, -1.0f, 0.0f },
-        2.5e+15f
-    );
-    iList.push_back(i);
-    i = nullptr;
-    /*
-    i = new psim::interactors::ConstForceInteractor(
-        { 0.0f, 1.0f, 0.0f },
-        10.0e2f
-    );
-    iList.push_back(i);
-    i = nullptr;
-    */
-    i = new psim::interactors::PointGravityInteractor(
-        { -60.0f, 100.0f, 0.0f },
-        8.0e+15f
-    );
-    iList.push_back(i);
-    i = nullptr;
-    i = new psim::interactors::PointGravityInteractor(
-        { 60.0f, 150.0f, 0.0f },
-        4.0e+15f
-    );
-    iList.push_back(i);
-    i = nullptr;
-    /*
-    i = new psim::interactors::PointGravityInteractor(
-        { 60.0f, 50.0f, 0.0f },
-        2.0e+15f,
-        -psim::interactors::AbstractGravityInteractor::G
-    );
-    iList.push_back(i);
-    i = nullptr;
-    */
+    psim::interactors::Setup ret;
+    ret.pointGravity[0] = {{ -60.0f, 100.0f, 0.0f}, 8.0e+15f, psim::interactors::G};
+    ret.pointGravity[1] = {{ 60.0f, 150.0f, 0.0f}, 4.0e+15f, psim::interactors::G};
 
-    return iList;
+    ret.planarGravity[0] = {{0.0f, 300.0f, 0.0f},{ 0.0f, 1.0f, 0.0f}, 2.5e+15f, psim::interactors::G, 0};
+    
+//    ret.constForce[0] = {{0.0f, 1.0f, 0.0f}, 10.0e2f};
+
+    ret.pointGravityCount = 2;
+    ret.planarGravityCount = 1;
+    ret.constForceCount = 0;
+
+    return ret;
 }
 
 glm::mat4 initMVP() 
@@ -103,34 +72,6 @@ glm::mat4 initMVP()
 
 int main()
 {
-
-// INIT MODEL--------------------------------------
-    psim::Buffer buffer(MAX_PARTICLES);
-
-    auto genList = initGeneratorsList();
-    auto iList = initInteractorList();
-    auto mvp = initMVP();
-
-    psim::Model::size worldSize;
-    worldSize[psim::axis::X] = WORLD_SIZE;
-    worldSize[psim::axis::Y] = WORLD_SIZE;
-    worldSize[psim::axis::Z] = WORLD_SIZE;
-    psim::Model world(worldSize, genList, iList, THREADS);
-
-    for (psim::generators::BaseGenerator* g : genList) {
-        delete g;
-        g = nullptr;
-    }
-    genList.clear();
-
-    for(psim::interactors::BaseInteractor* i : iList) {
-        delete i;
-        i=nullptr;
-    }
-    iList.clear();
-
-// END INIT MODEL--------------------------------------
-
     GLFWwindow *wnd;
     glfwInit();
 
@@ -138,15 +79,37 @@ int main()
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     wnd = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Particle Vulkan CPU", nullptr, nullptr);
+    
 
     try {
-        renderer::AppInstance appInstance;
-        renderer::SurfaceWindows appSurface(appInstance, GetModuleHandle(nullptr), glfwGetWin32Window(wnd));
-        renderer::Device appDevice(appInstance, appSurface.surface());
+
+        base::AppInstance appInstance;
+        base::SurfaceWindows appSurface(appInstance, GetModuleHandle(nullptr), glfwGetWin32Window(wnd));
+        base::Device appDevice(appInstance, appSurface.surface());
+
+        base::Buffer buffer(MAX_PARTICLES, appDevice);
+
+        auto genList = initGeneratorsList();
+        auto interactors = initInteractors();
+        auto mvp = initMVP();
+
+        psim::Model::size worldSize;
+        worldSize[base::axis::X] = WORLD_SIZE;
+        worldSize[base::axis::Y] = WORLD_SIZE;
+        worldSize[base::axis::Z] = WORLD_SIZE;
+        psim::Model world(appDevice, buffer, worldSize, genList, interactors);
+
+        for (psim::generators::BaseGenerator* g : genList) {
+            delete g;
+            g = nullptr;
+        }
+        genList.clear();
+
         renderer::Scene scene(appDevice);
         renderer::ParticlesElement partElem(appDevice, scene.renderPass(), buffer.dataSizeTotal());
         scene.addToScene(&partElem);
 
+        partElem.setVertexBuffer(buffer.dataBuffer());
         partElem.setMVP(mvp); 
 
         std::chrono::system_clock::time_point prev = std::chrono::system_clock::now();
@@ -160,14 +123,14 @@ int main()
             dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prev);
             prev = now;
 
-            world.progress(dt, buffer);
-            partElem.setVertexBufferData(buffer.activeCount(), buffer.data(), buffer.dataSizeTotal());
+            world.progress(dt);
+            partElem.setCurrentCount(buffer.activeCount());
             scene.render();
 
             ++framecount;
             uint32_t fpsdt = std::chrono::duration_cast<std::chrono::seconds>(now - fpsBegin).count();
             if (fpsdt >= 1) {
-                std::clog << "FPS: " << framecount << "\n";
+                std::clog << "FPS: " << framecount << " " << "\n";
                 framecount = 0;
                 fpsBegin = now;
             }

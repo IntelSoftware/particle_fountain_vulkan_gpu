@@ -25,12 +25,19 @@ add_custom_command(
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+add_custom_command(
+    OUTPUT comp.spv
+    COMMAND ${VULKAN_DIR}/Bin/glslangValidator.exe -V ${CMAKE_CURRENT_SOURCE_DIR}/particlesim/shaders/particle_fountain.comp
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
 add_custom_target(
     BuildShaders ALL
-    DEPENDS vert.spv frag.spv
+    DEPENDS vert.spv frag.spv comp.spv
 )
 
 include_directories(
+    base/include
     particlesim/include
     renderer/include 
     ${GLM_DIR}
@@ -44,7 +51,7 @@ link_directories(
 
 set(STATIC_LIBS glfw3.lib vulkan-1.lib)
 
-file(GLOB SOURCES "particlesim/src/*.cpp" "renderer/src/*.cpp" main.cpp)
+file(GLOB SOURCES "base/src/*.cpp" "particlesim/src/*.cpp" "renderer/src/*.cpp" main.cpp)
 
 add_executable(psim_cpu ${SOURCES})
 target_link_libraries(psim_cpu ${STATIC_LIBS})

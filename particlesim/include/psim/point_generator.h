@@ -11,12 +11,19 @@ namespace psim {
             static floatpair defTheta(float theta, float deviation); //degrees
             static floatpair defPhi(float phi, float deviation); //degrees
 
-            PointGenerator(vec::vec3Coord pos, floatpair theta, floatpair phi, ttlpair ttl, floatpair mass, floatpair speed, floatpair rate);
+            PointGenerator(base::vec::vec3f pos, 
+                           floatpair theta, 
+                           floatpair phi, 
+                           ttlpair ttl, 
+                           floatpair mass, 
+                           floatpair speed, 
+                           floatpair rate);
+
             PointGenerator(const PointGenerator& o);
             PointGenerator& operator=(const PointGenerator& o);
             virtual ~PointGenerator() = default;
 
-            virtual void generate(Buffer& buffer, base::time dt, uint32_t limit = std::numeric_limits<uint32_t>::max()) override;
+            virtual void generate(base::Buffer& buffer, base::scalar::time dt, uint32_t limit = UINT32_MAX) override;
             virtual BaseGenerator* clone() const override;
 
             protected:
@@ -29,7 +36,7 @@ namespace psim {
                     bool variablePhi;
                     std::uniform_real_distribution<float> distPhi;
 
-                    vec::vec3Coord position;
+                    base::vec::vec3f position;
                 } pointGenProperties;
 
                 float genTheta() const;

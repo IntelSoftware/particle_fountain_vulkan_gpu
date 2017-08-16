@@ -1,19 +1,19 @@
 #ifndef _RENDERER_SCENE_ELEMENT
 #define _RENDERER_SCENE_ELEMENT
 
-#include <renderer/device.h>
+#include <base/device.h>
 
 namespace renderer {
     class SceneElement
     {
     public:
-        SceneElement(Device &device);
+        SceneElement(base::Device &device);
         virtual ~SceneElement() = default;
 
         virtual void recordToCmdBuffer(VkCommandBuffer commandBuffer) = 0;
 		
     protected:
-        Device& renderDevice;
+        base::Device& renderDevice;
     };
 }
 

@@ -2,10 +2,10 @@
 #include <fstream>
 #include <iostream>
 
-#include <psim/particle.h>
+#include <base/particle.h>
 
 namespace renderer {
-    ParticlesElement::ParticlesElement(Device & device, VkRenderPass renderPass, std::size_t vbSize)
+    ParticlesElement::ParticlesElement(base::Device & device, VkRenderPass renderPass, std::size_t vbSize)
         :SceneElement(device)
         , mvpUniformSize(sizeof(glm::mat4))
         , particleCount(0)
@@ -175,49 +175,11 @@ namespace renderer {
 
         result = vkCreateShaderModule(renderDevice.device(), &fragmentShaderModuleCi, nullptr, &fragmentShaderStage.module);
 
-        VkBufferCreateInfo vbCi;
-        vbCi.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        vbCi.pNext = nullptr;
-        vbCi.flags = 0;
-        vbCi.size = vbSize;
-        vbCi.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-        vbCi.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        vbCi.queueFamilyIndexCount = 0;
-        vbCi.pQueueFamilyIndices = nullptr;
-
-        result = vkCreateBuffer(renderDevice.device(), &vbCi, nullptr, &vertexBuffer);
-
-        VkMemoryRequirements vbMemoryRequirements;
-        vkGetBufferMemoryRequirements(renderDevice.device(), vertexBuffer, &vbMemoryRequirements);
-
-        memoryTypeFound = false;
-        memTags = (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        for (memTypeIndex = 0; memTypeIndex < memProperties.memoryTypeCount; ++memTypeIndex) {
-            if ((vbMemoryRequirements.memoryTypeBits & (1<< memTypeIndex)) &&
-               ((memProperties.memoryTypes[memTypeIndex].propertyFlags & memTags) == memTags)) {
-                memoryTypeFound = true;
-                break;
-            }
-        }
-
-        if (!memoryTypeFound) {
-            throw std::runtime_error("Could not find proper memory type for vertex buffer");
-        }
-
-        VkMemoryAllocateInfo vbAlloc;
-        vbAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        vbAlloc.pNext = nullptr;
-        vbAlloc.memoryTypeIndex = memTypeIndex;
-        vbAlloc.allocationSize = vbMemoryRequirements.size;
-
-        result = vkAllocateMemory(renderDevice.device(), &vbAlloc, nullptr, &vertexBufferMemory);
-        result = vkBindBufferMemory(renderDevice.device(), vertexBuffer, vertexBufferMemory, 0);
-
         VkVertexInputBindingDescription vertexBinding;
 
         vertexBinding.binding = 0;
         vertexBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        vertexBinding.stride = sizeof(psim::particle);
+        vertexBinding.stride = sizeof(base::particle);
         
         VkVertexInputAttributeDescription vertexAttribute;
 
@@ -374,8 +336,6 @@ namespace renderer {
     ParticlesElement::~ParticlesElement()
     {
         vkDestroyPipeline(renderDevice.device(), pipeline, nullptr);
-        vkDestroyBuffer(renderDevice.device(), vertexBuffer, nullptr);
-        vkFreeMemory(renderDevice.device(), vertexBufferMemory, nullptr);
         vkDestroyShaderModule(renderDevice.device(), vertexShaderStage.module, nullptr);
         vkDestroyShaderModule(renderDevice.device(), fragmentShaderStage.module, nullptr);
         vkDestroyDescriptorPool(renderDevice.device(), descriptorPool, nullptr);
@@ -393,15 +353,14 @@ namespace renderer {
         memcpy(mappedData, &mvp, mvpUniformSize);
         vkUnmapMemory(renderDevice.device(), mvpUniformDeviceMemory);
     }
+    void ParticlesElement::setVertexBuffer(VkBuffer vb) noexcept
+    {
+        vertexBuffer = vb;
+    }
 
-    void ParticlesElement::setVertexBufferData(std::size_t count, void * data, std::size_t memSize)
+    void ParticlesElement::setCurrentCount(std::size_t count) noexcept
     {
         particleCount = count;
-        void *mappedData;
-
-        vkMapMemory(renderDevice.device(), vertexBufferMemory, 0, memSize, 0, &mappedData);
-        memcpy(mappedData, data, memSize);
-        vkUnmapMemory(renderDevice.device(), vertexBufferMemory);
     }
 
     void ParticlesElement::recordToCmdBuffer(VkCommandBuffer commandBuffer)
