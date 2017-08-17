@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 
         base::AppInstance appInstance;
         base::SurfaceWindows appSurface(appInstance, GetModuleHandle(nullptr), glfwGetWin32Window(wnd));
-        base::Device appDevice(appInstance, appSurface.surface());
+        base::Device appDevice(appInstance, appSurface.surface(), base::Device::INTEL_VENDOR_ID);
 
         base::Buffer buffer(MAX_PARTICLES, appDevice);
 
