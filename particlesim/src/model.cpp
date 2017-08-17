@@ -372,6 +372,8 @@ namespace psim {
 
         result = vkAllocateMemory(dev.device(), &interactorsUBOAlloc, nullptr, &interactorsUBODeviceMemory);
         result = vkBindBufferMemory(dev.device(), interactorsUBO, interactorsUBODeviceMemory, 0);
+
+		return VK_SUCCESS;
     }
 }
 

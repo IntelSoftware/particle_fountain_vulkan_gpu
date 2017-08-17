@@ -109,20 +109,18 @@ vec3 calcAccelPlanarGravity(in Particle p, in PlanarGravity i, out bool disableP
      * NOTE2: Initially we are not using abs to get a signed distance. If the resulting distance is positive the point is above 
      * the plane, if negative then below. When point is above the direction vector of force is -n (normal vector) otherwise is n.
      */
-
+	disableParticle = false;
     float gCoeff = i.G * i.massKG;
     float d = -dot(i.pos, i.n);
     float D = dot(p.pos, i.n) + d;
     vec3 r;
     if(D > 0.0f) {
-        disableParticle = false;
         r = -(i.n);
     } else {
-        if(i.deactivate > 0) {
+        if(i.deactivate != 0) {
             disableParticle = true;
             return vec3(0,0,0);
         }
-
         r = i.n;
         D = -D;
     }

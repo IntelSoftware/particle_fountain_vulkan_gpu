@@ -57,7 +57,7 @@ psim::interactors::Setup initInteractors()
     ret.pointGravity[0] = {{ -60.0f, 100.0f, 0.0f}, 8.0e+15f, psim::interactors::G};
     ret.pointGravity[1] = {{ 60.0f, 150.0f, 0.0f}, 4.0e+15f, psim::interactors::G};
 
-    ret.planarGravity[0] = {{0.0f, 300.0f, 0.0f},{ 0.0f, 1.0f, 0.0f}, 2.5e+15f, psim::interactors::G, 0};
+    ret.planarGravity[0] = {{0.0f, 300.0f, 0.0f},{ 0.0f, -1.0f, 0.0f}, 2.5e+15f, psim::interactors::G, 1};
     
 //    ret.constForce[0] = {{0.0f, 1.0f, 0.0f}, 10.0e2f};
 
