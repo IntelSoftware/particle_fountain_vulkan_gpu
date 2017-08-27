@@ -7,6 +7,7 @@
 namespace base {
     struct particle
     {
+
         alignas(16) vec::vec3f pos;
         alignas(16) scalar::colorRGB color;
         alignas(16) vec::vec3f velocity;

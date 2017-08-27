@@ -25,6 +25,7 @@ namespace base {
 
         void sort();
         bool add(const particle& p);
+		//GPU_TP43
         particle* Buffer::data() noexcept;
         VkBuffer dataBuffer() noexcept;
         VkResult mapToHost();

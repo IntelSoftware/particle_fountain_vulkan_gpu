@@ -9,6 +9,7 @@ namespace base {
     {
         VkResult result;
 
+		//GPU_TP42
         VkBufferCreateInfo buffCi;
         buffCi.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         buffCi.pNext = nullptr;

@@ -1,6 +1,7 @@
 #ifndef _PSIM_INTERACTOR_DEFS_
 #define _PSIM_INTERACTOR_DEFS_
 
+//GPU_TP46
 namespace psim {
     namespace interactors {
         constexpr uint32_t MAX_INSTANCES = 4;
@@ -9,6 +10,7 @@ namespace psim {
 
         struct PointGravity
         {
+			//GPU_TP47
             alignas(16) float pos[3];
             float massKG;
             float G;

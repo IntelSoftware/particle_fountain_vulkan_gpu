@@ -357,7 +357,7 @@ namespace base {
             }
         }
 
-        if (!memTypeIndex) {
+        if (!memTypeFound) {
             return VK_ERROR_INITIALIZATION_FAILED;
         }
 

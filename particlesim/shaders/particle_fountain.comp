@@ -1,7 +1,8 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout ( local_size_x = 128, local_size_y = 1, local_size_z = 1 ) in;
+//GPU_TP54
+layout ( local_size_x = 256, local_size_y = 1, local_size_z = 1 ) in;
 
 struct Particle
 {
@@ -51,11 +52,12 @@ layout(std430, binding = 0) buffer inputData
     Particle d[];
 };
 
-layout(binding = 1) uniform worldSize
+layout(std140, binding = 1) uniform worldSize
 {
     vec3 size;
 };
 
+//GPU_TP56
 layout(binding = 2) uniform Interactors
 {
     Setup iData;
@@ -87,6 +89,7 @@ void euler(inout Particle p, in vec3 a, in float dt)
     p.pos = p.pos + p.velocity*dt;
 }
 
+//GPU_TP57
 vec3 calcAccelPointGravity(in Particle p, in PointGravity i)
 {
     float gCoeff = i.G * i.massKG;
@@ -141,6 +144,7 @@ void main()
         return;
     }
 
+	//GPU_TP58
     Particle p = d[i];
 
     p.ttl -= dt;
@@ -149,6 +153,7 @@ void main()
 
         vec3 a = vec3(0, 0, 0);
 
+		//GPU_TP59
         for(uint idx=0; idx< iData.pointGravityCount; idx++) {
             a += calcAccelPointGravity(p, iData.pointGravity[idx]);
         }
@@ -165,6 +170,7 @@ void main()
             a += calcAccelConstForce(p, iData.constForce[idx]);
         }
 
+		//GPU_TP60
         euler(p, a, dt);
         toNormalizedScale(p, size);
     }

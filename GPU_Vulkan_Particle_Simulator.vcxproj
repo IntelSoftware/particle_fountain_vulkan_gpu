@@ -153,7 +153,7 @@
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>packages\glfw.3.2.1\build\native\lib\v140\x64\static;C:\VulkanSDK\1.0.51.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>packages\glfw.3.2.1\build\native\lib\v140\x64\static;$(VK_DIR)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -174,7 +174,7 @@ $(VK_DIR)\Bin\glslangValidator.exe -V particlesim\shaders\particle_fountain.comp
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.0.51.0\Lib;packages\glfw.3.2.1\build\native\lib\v140\x64\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VK_DIR)\Lib;packages\glfw.3.2.1\build\native\lib\v140\x64\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>

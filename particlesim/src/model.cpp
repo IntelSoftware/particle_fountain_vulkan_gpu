@@ -146,6 +146,7 @@ namespace psim {
 
         result = vkCreateShaderModule(dev.device(), &computeShaderModuleCi, nullptr, &compShaderStage.module);
 
+		//GPU_TP53
         VkPushConstantRange pushConstants;
         pushConstants.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
         pushConstants.offset = 0;
@@ -162,6 +163,7 @@ namespace psim {
 
         result = vkCreatePipelineLayout(dev.device(), &pipelineLayoutCi, nullptr, &pipelineLayout);
 
+		//GPU_TP50
         VkComputePipelineCreateInfo compPipelineCi;
         compPipelineCi.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
         compPipelineCi.pNext = nullptr;
@@ -209,6 +211,7 @@ namespace psim {
         memcpy(mmap, &wSize, sizeof(size));
         vkUnmapMemory(dev.device(), worldSizeUBODeviceMemory);
 
+		//GPU_TP49
         vkMapMemory(dev.device(), interactorsUBODeviceMemory, 0, sizeof(interactors::Setup), 0, &mmap);
         memcpy(mmap, &i, sizeof(interactors::Setup));
         vkUnmapMemory(dev.device(), interactorsUBODeviceMemory);
@@ -236,28 +239,30 @@ namespace psim {
 
     void Model::progress(std::chrono::microseconds dt)
     {
-        //1 time
+        
         base::scalar::time dt_sec = dt.count() *1.0e-6f;
-        //2 interactors
+        
         std::size_t particleCount = buffer.activeCount();
         if(particleCount > 0) {
             VkResult result;
 
             result = vkResetFences(dev.device(), 1, &fence);
             result = vkBeginCommandBuffer(commandBuffer, &bufferBeginInfo);
-
+			//GPU_TP51
             vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
             PushConstantData pc;
             pc.itemized.particleCount = particleCount;
             pc.itemized.dt = dt_sec;
 
+			//GPU_TP52
             vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(pc.data), pc.data);
 
-            uint32_t numCompGroups = ceil(particleCount/128);
+            uint32_t numCompGroups = ceil(particleCount/256);
             vkCmdDispatch(commandBuffer, numCompGroups, 1, 1);
             vkEndCommandBuffer(commandBuffer);
 
+			//GPU_TP55
             result = vkQueueSubmit(dev.computeQueue(), 1, &submitInfo, fence);
 
             VkResult waitResult;
@@ -266,10 +271,10 @@ namespace psim {
             } while (waitResult == VK_TIMEOUT);
         }
 
-        //3 sort
+        
         buffer.mapToHost();
         buffer.sort();
-        //4 generators
+        
         for (generators::BaseGenerator* g : generators) {
             g->generate(buffer, dt_sec);
         }

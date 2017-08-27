@@ -26,7 +26,7 @@ constexpr int SCR_HEIGHT = 960;
 constexpr float WORLD_SIZE = 500;
 
 namespace {
-    std::size_t MAX_PARTICLES = 10000;
+    std::size_t MAX_PARTICLES = 1000000;
     float RATE_NUM = 200.f;
     float RATE_DEN = 0.1f;
     uint32_t TTL = 600;
@@ -53,6 +53,7 @@ psim::Model::GeneratorList initGeneratorsList()
 
 psim::interactors::Setup initInteractors()
 {
+	//GPU_TP48
     psim::interactors::Setup ret;
     ret.pointGravity[0] = {{ -60.0f, 100.0f, 0.0f}, 8.0e+15f, psim::interactors::G};
     ret.pointGravity[1] = {{ 60.0f, 150.0f, 0.0f}, 4.0e+15f, psim::interactors::G};
@@ -119,6 +120,7 @@ int main(int argc, char* argv[])
 
     try {
 
+		//GPU_TP41
         base::AppInstance appInstance;
         base::SurfaceWindows appSurface(appInstance, GetModuleHandle(nullptr), glfwGetWin32Window(wnd));
         base::Device appDevice(appInstance, appSurface.surface(), base::Device::INTEL_VENDOR_ID);
@@ -133,6 +135,7 @@ int main(int argc, char* argv[])
         worldSize[base::axis::X] = WORLD_SIZE;
         worldSize[base::axis::Y] = WORLD_SIZE;
         worldSize[base::axis::Z] = WORLD_SIZE;
+		//GPU_TP44
         psim::Model world(appDevice, buffer, worldSize, genList, interactors);
 
         for (psim::generators::BaseGenerator* g : genList) {
@@ -142,6 +145,7 @@ int main(int argc, char* argv[])
         genList.clear();
 
         renderer::Scene scene(appDevice);
+		//GPU_TP45
         renderer::ParticlesElement partElem(appDevice, scene.renderPass(), buffer.dataSizeTotal());
         scene.addToScene(&partElem);
 
